@@ -1,0 +1,19 @@
+{
+  "manifest_version": 3,
+  "name": "LinkedInOhneAlgo",
+  "version": "1.0.0",
+  "description": "Hides LinkedIn feed posts unless they're from your 1st-degree connections.",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "linkedin-connection-filter@local.dev",
+      "strict_min_version": "115.0"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://www.linkedin.com/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "name": "linkedinohnealgo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Hide LinkedIn feed posts that aren't from your 1st-degree connections.",
+  "type": "module",
+  "scripts": {
+    "inspect": "node test/inspect-feed.mjs inspect",
+    "verify": "node test/inspect-feed.mjs verify"
+  },
+  "devDependencies": {
+    "playwright": "^1.49.0"
+  }
+}

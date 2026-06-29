@@ -1,0 +1,8 @@
+node_modules/
+package-lock.json
+
+# Harness output — contains scraped feed data (real names), keep it local
+test/last-report.json
+
+.DS_Store
+*.log
