@@ -1,5 +1,5 @@
 {
-  "name": "linkedinohnealgo",
+  "name": "lioa",
   "version": "1.0.0",
   "private": true,
   "description": "Hide LinkedIn feed posts that aren't from your 1st-degree connections.",
@@ -8,7 +8,8 @@
   "type": "module",
   "scripts": {
     "inspect": "node test/inspect-feed.mjs inspect",
-    "verify": "node test/inspect-feed.mjs verify"
+    "verify": "node test/inspect-feed.mjs verify",
+    "build:zip": "rm -rf dist && mkdir -p dist && zip -rX dist/lioa.zip manifest.json content.js icons LICENSE -x '*.DS_Store' 'icons/icon-256.png'"
   },
   "devDependencies": {
     "playwright": "^1.49.0"

@@ -1,9 +1,9 @@
-# LinkedInOhneAlgo
+# Lioa
 
-*LinkedIn ohne Algorithmus* — a small browser extension (Firefox & Chrome) that
-hides every post in your LinkedIn home feed except those authored by your
-**1st-degree connections**, so you see what your actual network posts instead of
-algorithmic filler.
+**Lioa** (*LinkedIn ohne Algorithmus*) — a small browser extension (Firefox &
+Chrome) that hides every post in your LinkedIn home feed except those authored by
+your **1st-degree connections**, so you see what your actual network posts instead
+of algorithmic filler. Not affiliated with LinkedIn.
 
 ## Install — Firefox
 
@@ -85,6 +85,14 @@ as a Firefox content script, which is exempt from the page CSP.)
 - The Playwright profile stores your LinkedIn session locally under
   `~/.cache/li-connection-filter/profile` and is never transmitted anywhere;
   delete that folder to reset/log out.
+
+## Packaging for the stores
+
+`npm run build:zip` produces `dist/lioa.zip` with only the shippable files
+(`manifest.json`, `content.js`, `icons/`, `LICENSE`) — upload that to the Chrome
+Web Store or Firefox Add-ons (AMO). See [PRIVACY.md](PRIVACY.md) for the
+data-handling disclosure (Lioa collects nothing). The icon is generated from the
+phrase *linkedinohnealgo* by the `imprint` engine in the portfolio repo.
 
 ## License
 

@@ -1,6 +1,6 @@
 /*
- * LinkedInOhneAlgo
- * ----------------
+ * Lioa — LinkedIn ohne Algo
+ * -------------------------
  * Hides any home-feed post whose author isn't a 1st-degree connection.
  *
  * As of LinkedIn's 2025 "server-driven UI" feed rebuild, the markup is fully

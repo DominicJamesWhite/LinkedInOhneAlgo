@@ -1,6 +1,9 @@
 node_modules/
 package-lock.json
 
+# Packaged extension zip (build artifact)
+dist/
+
 # Harness output — contains scraped feed data (real names), keep it local
 test/last-report.json
 
