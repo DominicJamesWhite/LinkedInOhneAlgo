@@ -9,7 +9,7 @@
   "scripts": {
     "inspect": "node test/inspect-feed.mjs inspect",
     "verify": "node test/inspect-feed.mjs verify",
-    "build:zip": "rm -rf dist && mkdir -p dist && zip -rX dist/lioa.zip manifest.json content.js icons LICENSE -x '*.DS_Store' 'icons/icon-256.png'"
+    "build:zip": "rm -rf dist && mkdir -p dist && zip -rX dist/lioa.zip manifest.json content.js popup.html popup.js icons LICENSE -x '*.DS_Store' 'icons/icon-256.png'"
   },
   "devDependencies": {
     "playwright": "^1.49.0"

@@ -10,8 +10,8 @@ of algorithmic filler. Not affiliated with LinkedIn.
 1. Open Firefox and go to `about:debugging#/runtime/this-firefox`
 2. Click **Load Temporary Add-on…**
 3. Select the `manifest.json` file in this folder
-4. Open `https://www.linkedin.com/feed/` — a blue **Filter ON** pill appears
-   bottom-right. Click it to toggle filtering on/off.
+4. Open `https://www.linkedin.com/feed/`. Click the **Lioa** toolbar icon to see
+   how many posts are hidden and to toggle the filter on/off.
 
 Temporary add-ons are removed when Firefox restarts. To keep it permanently
 you'd need to package and sign it via Mozilla's add-on developer hub
@@ -22,7 +22,8 @@ unsigned add-ons.
 
 1. Go to `chrome://extensions` and turn on **Developer mode** (top-right).
 2. Click **Load unpacked** and select this folder.
-3. Open `https://www.linkedin.com/feed/` — the **Filter ON** pill appears.
+3. Open `https://www.linkedin.com/feed/`, then click the **Lioa** toolbar icon to
+   see the hidden count and toggle the filter.
 
 Chrome shows a harmless *"Unrecognized manifest key 'browser_specific_settings'"*
 warning (that key is Firefox-only; Chrome ignores it). Unlike Firefox's temporary

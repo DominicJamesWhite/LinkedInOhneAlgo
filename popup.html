@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      :root {
+        --bg: #0e1413;
+        --panel: #141b1a;
+        --border: #1e2a28;
+        --teal: #36d39b;
+        --teal-track: #1f6f57;
+        --text: #e8f0ee;
+        --muted: #8aa39b;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        width: 260px;
+        font: 13px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: var(--bg);
+        color: var(--text);
+      }
+      .head { display: flex; align-items: center; gap: 9px; padding: 14px 14px 10px; }
+      .head img { width: 26px; height: 26px; border-radius: 6px; }
+      .head .name { font-weight: 700; font-size: 15px; letter-spacing: 0.2px; }
+      .head .sub { color: var(--muted); font-size: 11px; }
+      .card {
+        margin: 0 14px 12px;
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 14px;
+      }
+      .row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+      .count { font-size: 30px; font-weight: 750; color: var(--teal); line-height: 1; }
+      .count-label { color: var(--muted); margin-top: 4px; }
+      .switch { position: relative; width: 44px; height: 26px; flex: none; }
+      .switch input { opacity: 0; width: 0; height: 0; }
+      .slider {
+        position: absolute; inset: 0; background: #33403d;
+        border-radius: 999px; transition: 0.15s; cursor: pointer;
+      }
+      .slider::before {
+        content: ""; position: absolute; width: 20px; height: 20px;
+        left: 3px; top: 3px; background: #fff; border-radius: 50%; transition: 0.15s;
+      }
+      input:checked + .slider { background: var(--teal-track); }
+      input:checked + .slider::before { transform: translateX(18px); background: var(--teal); }
+      .foot { padding: 0 14px 12px; color: var(--muted); font-size: 11px; }
+    </style>
+  </head>
+  <body>
+    <div class="head">
+      <img src="icons/icon-48.png" alt="" />
+      <div>
+        <div class="name">Lioa</div>
+        <div class="sub">LinkedIn ohne Algo</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="row">
+        <div>
+          <div id="count" class="count">0</div>
+          <div id="countLabel" class="count-label">posts hidden</div>
+        </div>
+        <label class="switch" title="Toggle filter">
+          <input type="checkbox" id="toggle" />
+          <span class="slider"></span>
+        </label>
+      </div>
+    </div>
+    <div class="foot" id="foot">Showing only your 1st-degree connections.</div>
+    <script src="popup.js"></script>
+  </body>
+</html>

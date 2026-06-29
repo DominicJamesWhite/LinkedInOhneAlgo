@@ -3,23 +3,23 @@
  * -------------------------
  * Hides any home-feed post whose author isn't a 1st-degree connection.
  *
- * As of LinkedIn's 2025 "server-driven UI" feed rebuild, the markup is fully
- * obfuscated: class names are hashed (e.g. `_26ae297a`) and feed posts no
- * longer carry `data-urn`/`data-id`. The durable hooks that remain are:
- *   - the feed list:  [data-testid="mainFeed"]  (also data-component-type="LazyColumn")
+ * As of LinkedIn's 2025 "server-driven UI" feed rebuild, class names are hashed
+ * (`_26ae297a`…) and posts no longer carry `data-urn`/`data-id`. Durable hooks:
+ *   - the feed list:  [data-testid="mainFeed"]  (a data-component-type="LazyColumn")
  *   - a post:         [role="listitem"] inside that list
  *   - the author + degree:  an element whose aria-label reads
  *                           "<Name> [Verified Profile] <1st|2nd|3rd+>"
  *
- * We read the degree from the AUTHOR's aria-label rather than scanning the
- * post's visible text, because (a) verified authors render the degree next to
- * a badge icon (so it isn't a plain text leaf) and (b) a post's body can
- * contain a *commenter's* or social-proof person's degree ("Laura commented…
- * • 1st"), which a whole-post text scan would wrongly match. The first
- * aria-label in the post that carries a degree is the author's.
+ * We read the degree from the AUTHOR's aria-label rather than scanning the post's
+ * visible text, because verified authors render the degree beside a badge icon
+ * (not a plain text leaf) and a post body can contain a *commenter's* badge
+ * ("Laura commented … • 1st") that a text scan would wrongly match.
+ *
+ * There is no in-page UI. The on/off preference and the live hidden-count are
+ * shared with the toolbar popup via chrome.storage.local.
  *
  * If filtering breaks after a redesign, run `npm run inspect` (test/inspect-feed.mjs)
- * to dump the live DOM and update SELECTORS / the aria-label assumption below.
+ * to dump the live DOM and update SELECTORS / the aria-label assumption.
  */
 (() => {
   "use strict";
@@ -37,6 +37,18 @@
   // Matches a connection-degree token ("1st"/"2nd"/"3rd"/"3rd+") bounded by a
   // separator or string edge, so it won't match "21st" or "1st" inside a word.
   const DEGREE_RE = /(^|[\s·•‧|])(1st|2nd|3rd\+?)(?=[\s·•‧|]|$)/i;
+
+  // chrome.storage works in both Chrome and Firefox (MV3) with the "storage"
+  // permission. It's null when the script runs outside an extension (e.g. injected
+  // by the test harness) — detection still works, there's just no popup sync.
+  const store = (typeof chrome !== "undefined" && chrome.storage && chrome.storage.local) || null;
+  const KEY_ENABLED = "lcf-enabled";
+  const KEY_HIDDEN = "lcf-hidden";
+
+  // -------- state --------
+  let enabled = true; // default on; overridden by stored preference below
+  let hiddenCount = 0;
+  let lastPublished = null;
 
   // Top-level posts in the feed (skip nested listitems: comments, carousels).
   function feedPosts() {
@@ -62,16 +74,11 @@
     return null;
   }
 
-  // -------- state --------
-  let enabled = localStorage.getItem("lcf-enabled") !== "off";
-  let hiddenCount = 0;
-
   // The feed list's direct child that wraps this post. The feed is a flex column
   // with `gap: 8px`, and each post sits in a `display:contents` wrapper that is
   // the list's direct child. Hiding the post itself leaves that wrapper as a
-  // zero-height flex item, so the 8px gap around it still shows — producing big
-  // empty bands between kept posts and confusing the infinite-scroll trigger.
-  // Hiding the WRAPPER instead removes it from the flex flow, collapsing the gap.
+  // zero-height flex item, so the gap around it still shows (empty bands, and the
+  // leftover height confuses infinite scroll). Hiding the WRAPPER collapses it.
   function slotOf(post) {
     const feed = post.closest(SELECTORS.feed);
     if (!feed) return post;
@@ -95,14 +102,20 @@
     if (slot.style.display !== target) slot.style.display = target;
   }
 
+  // Share the live count with the popup (only when it changed).
+  function publish() {
+    if (!store || hiddenCount === lastPublished) return;
+    lastPublished = hiddenCount;
+    store.set({ [KEY_HIDDEN]: hiddenCount });
+  }
+
   function sweep() {
     const posts = feedPosts();
     const degrees = posts.map(authorDegree);
     const withDegree = degrees.filter(Boolean).length;
 
     // Fail-safe: if there are posts but NONE has a detectable degree, LinkedIn
-    // probably changed the markup — show everything instead of blanking the
-    // feed, and warn so it's obvious something needs updating.
+    // probably changed the markup — show everything instead of blanking the feed.
     const failSafe = enabled && posts.length >= 3 && withDegree === 0;
 
     let hidden = 0;
@@ -121,41 +134,7 @@
     console.debug(
       `[LCF] posts=${posts.length} withDegree=${withDegree} kept=${posts.length - hidden} hidden=${hidden}${failSafe ? " (FAIL-SAFE)" : ""}`,
     );
-    updateBadge();
-  }
-
-  // -------- floating on/off toggle --------
-  let badgeEl;
-  function buildToggle() {
-    if (badgeEl && document.body.contains(badgeEl)) return;
-    badgeEl = document.createElement("button");
-    badgeEl.type = "button";
-    Object.assign(badgeEl.style, {
-      position: "fixed",
-      bottom: "16px",
-      right: "16px",
-      zIndex: "99999",
-      padding: "8px 12px",
-      borderRadius: "20px",
-      border: "none",
-      font: "600 12px/1.2 system-ui, sans-serif",
-      color: "#fff",
-      cursor: "pointer",
-      boxShadow: "0 2px 8px rgba(0,0,0,.25)",
-    });
-    badgeEl.addEventListener("click", () => {
-      enabled = !enabled;
-      localStorage.setItem("lcf-enabled", enabled ? "on" : "off");
-      sweep();
-    });
-    document.body.appendChild(badgeEl);
-    updateBadge();
-  }
-
-  function updateBadge() {
-    if (!badgeEl) return;
-    badgeEl.style.background = enabled ? "#0a66c2" : "#666";
-    badgeEl.textContent = enabled ? `Filter ON · ${hiddenCount} hidden` : "Filter OFF";
+    publish();
   }
 
   // -------- run + watch the dynamic, infinite-scrolling feed --------
@@ -164,17 +143,33 @@
     if (timer) return;
     timer = setTimeout(() => {
       timer = null;
-      buildToggle(); // SPA re-renders can drop the button; re-add if needed
       sweep();
     }, 300);
   }
 
   function start() {
-    buildToggle();
     sweep();
     new MutationObserver(scheduleSweep).observe(document.body, {
       childList: true,
       subtree: true,
+    });
+  }
+
+  // Load the stored on/off preference, and react to the popup toggling it.
+  if (store) {
+    store.get(KEY_ENABLED, (res) => {
+      if (res && typeof res[KEY_ENABLED] === "boolean" && res[KEY_ENABLED] !== enabled) {
+        enabled = res[KEY_ENABLED];
+        sweep();
+      }
+    });
+    chrome.storage.onChanged.addListener((changes, area) => {
+      if (area !== "local" || !changes[KEY_ENABLED]) return;
+      const v = changes[KEY_ENABLED].newValue;
+      if (typeof v === "boolean" && v !== enabled) {
+        enabled = v;
+        sweep();
+      }
     });
   }
 
