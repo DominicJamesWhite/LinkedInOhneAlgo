@@ -85,3 +85,7 @@ as a Firefox content script, which is exempt from the page CSP.)
 - The Playwright profile stores your LinkedIn session locally under
   `~/.cache/li-connection-filter/profile` and is never transmitted anywhere;
   delete that folder to reset/log out.
+
+## License
+
+[MIT](LICENSE) © Dominic White
