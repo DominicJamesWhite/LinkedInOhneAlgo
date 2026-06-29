@@ -23,7 +23,9 @@
   "browser_specific_settings": {
     "gecko": {
       "id": "linkedin-connection-filter@local.dev",
-      "strict_min_version": "115.0"
+      "data_collection_permissions": {
+        "required": ["none"]
+      }
     }
   },
   "content_scripts": [
